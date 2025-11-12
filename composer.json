@@ -1,5 +1,5 @@
 {
-  "name": "felconca/session-manager",
+  "name": "felconca/session-cookies-manager",
   "description": "A lightweight PHP library for managing sessions.",
   "type": "library",
   "license": "MIT",

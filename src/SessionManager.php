@@ -15,7 +15,8 @@ class SessionManager
     {
         $this->namespace = $namespace;
         $this->config = array_merge([
-            'lifetime' => 1800, // 30 minutes
+            'lifetime' => 1800, // cookie lifetime
+            'idle_timeout' => 900, // 15 minutes idle expiration
             'path' => '/',
             'domain' => '',
             'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
@@ -26,10 +27,14 @@ class SessionManager
 
         $this->configureSession();
         $this->startSession();
+        $this->handleExpiration();
 
         if (!isset($_SESSION[$this->namespace])) {
             $_SESSION[$this->namespace] = [];
         }
+
+        // Update last activity time
+        $_SESSION['_last_activity'] = time();
     }
 
     /**
@@ -39,7 +44,6 @@ class SessionManager
     {
         session_name($this->config['name']);
 
-        // PHP 7.3+ supports samesite in cookie params
         if (PHP_VERSION_ID >= 70300) {
             session_set_cookie_params([
                 'lifetime' => $this->config['lifetime'],
@@ -50,7 +54,6 @@ class SessionManager
                 'samesite' => $this->config['samesite']
             ]);
         } else {
-            // For older PHP <7.3 (no samesite support)
             session_set_cookie_params(
                 $this->config['lifetime'],
                 $this->config['path'],
@@ -72,6 +75,20 @@ class SessionManager
     }
 
     /**
+     * Check and enforce session idle timeout.
+     */
+    private function handleExpiration()
+    {
+        if (isset($_SESSION['_last_activity'])) {
+            $idle = time() - $_SESSION['_last_activity'];
+            if ($idle > $this->config['idle_timeout']) {
+                $this->destroy();
+                session_start(); // restart clean session
+            }
+        }
+    }
+
+    /**
      * Set a session value.
      *
      * @param string $key
@@ -80,6 +97,7 @@ class SessionManager
     public function set($key, $value)
     {
         $_SESSION[$this->namespace][$key] = $value;
+        $_SESSION['_last_activity'] = time();
     }
 
     /**
@@ -91,6 +109,7 @@ class SessionManager
      */
     public function get($key, $default = null)
     {
+        $_SESSION['_last_activity'] = time();
         return isset($_SESSION[$this->namespace][$key]) ? $_SESSION[$this->namespace][$key] : $default;
     }
 
@@ -113,6 +132,7 @@ class SessionManager
     public function remove($key)
     {
         unset($_SESSION[$this->namespace][$key]);
+        $_SESSION['_last_activity'] = time();
     }
 
     /**
@@ -122,6 +142,7 @@ class SessionManager
      */
     public function all()
     {
+        $_SESSION['_last_activity'] = time();
         return $_SESSION[$this->namespace];
     }
 
@@ -131,6 +152,7 @@ class SessionManager
     public function clear()
     {
         $_SESSION[$this->namespace] = [];
+        $_SESSION['_last_activity'] = time();
     }
 
     /**
@@ -141,6 +163,7 @@ class SessionManager
     public function regenerate($deleteOldSession = true)
     {
         session_regenerate_id($deleteOldSession);
+        $_SESSION['_last_activity'] = time();
     }
 
     /**
