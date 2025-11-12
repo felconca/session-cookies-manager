@@ -1,0 +1,25 @@
+{
+  "name": "felconca/session-manager",
+  "description": "A lightweight PHP library for managing sessions.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Felcon Albaladejo",
+      "email": "felcon.albaladejo@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Cookies\\Session\\": "src/"
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "scripts": {
+    "test": "php test/test.php"
+  }
+}
