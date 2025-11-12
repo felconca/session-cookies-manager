@@ -10,7 +10,7 @@ It provides a simple, object-oriented interface to **create**, **read**, **updat
 - ⏱️ Automatic idle timeout expiration
 - 🔁 Session ID regeneration for security
 - 💣 Safe session destruction
-- 🧠 Compatible with **PHP 7.2+ and PHP 8+**
+- 🧠 Compatible with **PHP 7.4+ and PHP 8+**
 
 ## 📦 Installation
 
@@ -117,7 +117,7 @@ Namespaces prevent key collisions between different parts of your app.
 
 ## 🧑‍💻 Requirements
 
-- **PHP 7.2 or higher**
+- **PHP 7.4 or higher**
 - No external dependencies (pure PHP)
 
 ## 🪪 License
